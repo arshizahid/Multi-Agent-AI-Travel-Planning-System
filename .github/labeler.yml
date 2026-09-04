@@ -1,0 +1,10 @@
+major:
+  - head-branch: ['^breaking/', '^major/']
+feature:
+  - head-branch: ['^feat/', '^feature/']
+bug:
+  - head-branch: ['^fix/', '^bug/']
+chore:
+  - head-branch: ['^chore/']
+docs:
+  - head-branch: ['^docs/']
