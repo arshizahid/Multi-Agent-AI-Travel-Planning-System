@@ -1,6 +1,7 @@
-# Build a Multi-Agent Travel Planning System using LangGraph + MCP
+# Build a Multi-Agent Travel Planning System using LangGraph + MCP | Supervisor Agent + Guardrails + Human-in-the-Loop
 
-This project extends the Multi-Agent Travel Planning System built in Part 1 by integrating MCP (Model Context Protocol) servers for real-time flight and weather data.
+
+This project extends the Multi-Agent Travel Planning System built in Part 1 and Part 2 by integrating Supervisor Agent + Guardrails + Human-in-the-Loop
 
 ## Part 1 of This Project
 
@@ -10,6 +11,18 @@ https://github.com/codewithaarohi/AI-Travel-Planning-System-using-LangGraph
 **Video Tutorial:**  
 Build a Real-World Multi-Agent AI System using LangGraph | Multi-Agent AI + Memory + APIs  
 https://youtu.be/ctHby5vhDqg
+
+
+
+
+## Part 2 of This Project
+
+**GitHub Repository:**  
+https://github.com/codewithaarohi/AI-Travel-Planning-App-using-LangGraph-and-MCP
+
+**Video Tutorial:**  
+Build a Real-World Multi-Agent AI System using LangGraph | Multi-Agent AI + Memory + MCP  
+https://youtu.be/DjMX7o2EeV0
 
 ---
 
@@ -193,14 +206,7 @@ Install dependencies:
 
 # Run the Application
 
-## Terminal Version
-
-    python main.py
-
 ## Streamlit Web App
-
-Copy `frontend.py` from the Part 1 repository into this project.
-
 Run:
 
     streamlit run frontend.py
@@ -224,3 +230,5 @@ Run:
 - Weather MCP Integration
 - Streamlit Web App
 - Real-Time Travel Planning
+- Human in the loop
+- Guardrails
