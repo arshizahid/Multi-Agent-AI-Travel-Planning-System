@@ -1,157 +1,226 @@
-# AI Travel Planning System using LangGraph
+# Build a Multi-Agent Travel Planning System using LangGraph + MCP
 
-This project is a Real-World Multi-Agent AI System built using LangGraph.
+This project extends the Multi-Agent Travel Planning System built in Part 1 by integrating MCP (Model Context Protocol) servers for real-time flight and weather data.
 
-The system uses 4 AI agents that work together to plan a complete trip automatically.
+## Part 1 of This Project
 
-## Features
+**GitHub Repository:**  
+https://github.com/codewithaarohi/AI-Travel-Planning-System-using-LangGraph
 
-- ✈️ Flight Search Agent
-- 🏨 Hotel Search Agent
-- 🗓️ Itinerary Planning Agent
-- 🤖 Final Response Agent
-- 🧠 Memory using PostgreSQL
-- 🌐 Real-time API Integration
-- 💻 Streamlit Web Interface
+**Video Tutorial:**  
+Build a Real-World Multi-Agent AI System using LangGraph | Multi-Agent AI + Memory + APIs  
+https://youtu.be/ctHby5vhDqg
 
 ---
 
-# Tech Stack
+# Requirements
 
-- LangGraph
-- LangChain
-- Groq
-- Llama 3.3 70B
-- PostgreSQL
-- Streamlit
-- Tavily API
-- AviationStack API
+## APIs
+
+- Groq API: https://console.groq.com
+- Tavily API: https://www.tavily.com/
+- AviationStack API: https://aviationstack.com/
+- OpenWeatherMap API: https://openweathermap.org/
+
+## Tools
+
+- PostgreSQL: https://www.postgresql.org/download/
+- Tavily MCP Server: https://docs.tavily.com/documentation/mcp
 
 ---
 
 # Step 1: Create Python Environment
 
-Open the terminal inside the project folder and run:
 
-		python -m venv langgraph_env3\
-		OR 
-		Run for specific version
-		py -3.12 -m venv langgraph_env3
+    python -m venv langgraph_env3
 
 
-Now activate the environment:
+Activate:
 
-#### Windows
 
-		langgraph_env3\Scripts\activate
+    langgraph_env3\Scripts\activate
+
 
 ---
 
 # Step 2: Install Dependencies
 
-Run the following command:
 
-		pip install langgraph langchain langchain-openai langchain-groq langchain-community langchain-tavily psycopg[binary] psycopg_pool python-dotenv tavily-python requests streamlit
+    pip install langgraph langchain langchain-openai langchain-groq langchain-community langchain-tavily psycopg[binary] psycopg_pool python-dotenv tavily-python requests streamlit
 
-		pip install -U "psycopg[binary,pool]"  langgraph-checkpoint-postgres
+
+
+    pip install -U "psycopg[binary,pool]" langgraph-checkpoint-postgres
+
 
 ---
 
 # Step 3: Install PostgreSQL
 
-Download and install PostgreSQL: https://www.postgresql.org/download/
+Download PostgreSQL:
 
-⚠️ Important:
-While installing PostgreSQL, remember:
-- PostgreSQL Password
-- Port Number
+https://www.postgresql.org/download/
 
-You will need them later while creating the database connection string.
+**Important:** Note your PostgreSQL password and port number during installation.
 
 ---
 
 # Step 4: Create Database
 
-Open PostgreSQL and run:
 
-CREATE DATABASE langgraph_memory;
+    CREATE DATABASE langgraph_memory_demo;
 
 
 ---
 
-# Step 5: Setup `.env` File
+# Step 5: Setup .env File
 
-Create a `.env` file inside the project folder.
+Create a `.env` file:
 
-Add the following keys:
+    GROQ_API_KEY=your_groq_api_key
 
-GROQ_API_KEY=your_groq_api_key
+    TAVILY_API_KEY=your_tavily_api_key
 
-TAVILY_API_KEY=your_tavily_api_key
+    AVIATIONSTACK_API_KEY=your_aviationstack_api_key
 
-AVIATIONSTACK_API_KEY=your_aviationstack_api_key
-
-DATABASE_URL=postgresql://postgres:postgres@localhost:5433/langgraph_memory_demo
+    DATABASE_URL=postgresql://postgres:postgres@localhost:5433/langgraph_memory_demo
 
 
 ---
 
 # Step 6: Get API Keys
 
-## Get Groq API Key
-
-https://console.groq.com
-
----
-
-## Get Tavily API Key
-
-https://tavily.com
-  
----
-
-## Get AviationStack API Key
-
-https://aviationstack.com
+- Groq: https://console.groq.com
+- Tavily: https://tavily.com
+- AviationStack: https://aviationstack.com
+- OpenWeatherMap: https://openweathermap.org/
 
 ---
 
-# Step 7: Run the Application
+# Setup AviationStack MCP Server (Local MCP Server)
 
-#### Run Multi-Agent System in Terminal
+Repository:
 
-		python main.py
+https://github.com/Pradumnasaraf/aviationstack-mcp
+
+Open PowerShell:
+
+    E:
+
+    cd E:\Multi_agent_system_with_MCP
 
 
-This will test the multi-agent system through the terminal.
+Clone repository:
+
+
+    git clone https://github.com/Pradumnasaraf/aviationstack-mcp.git
+
+    cd aviationstack-mcp
+
+
+## Install UV
+
+Check:
+
+    uv --version
+
+
+Install:
+
+    pip install uv
+
+
+If installation fails:
+
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+
+## Create .env File
+
+    AVIATION_STACK_API_KEY=your_api_key_here
+
+
+## Install Dependencies
+
+    uv sync
+
+
+This will:
+
+- Create `.venv`
+- Install dependencies
+- Install AviationStack MCP package
+
+## Activate Environment
+
+    .venv\Scripts\activate
+
+
+## Start MCP Server
+
+    uv run -m aviationstack_mcp mcp run
+
+
+or
+
+
+    python -m aviationstack_mcp mcp run
+
+
+The server will remain running and wait for MCP requests.
+
+## Stop Server
+
+    CTRL + C
+
 
 ---
 
-#### Run Streamlit Web App
+# Setup Weather MCP Server
 
+Get API key:
 
-		streamlit run frontend.py
+https://openweathermap.org/
 
+Add the API key to your `.env` file.
 
-This will launch the Multi-Agent AI web application.
+Install dependencies:
+
+    pip install mcp requests
+
 
 ---
 
-#### Example Prompt
+# Run the Application
 
-Plan a complete 7 days Japan trip including flights, hotels and sightseeing under 2 lakhs.
+## Terminal Version
+
+    python main.py
+
+## Streamlit Web App
+
+Copy `frontend.py` from the Part 1 repository into this project.
+
+Run:
+
+    streamlit run frontend.py
 
 
 ---
 
-# Project Workflow
+# Example Prompt
 
-1. Flight Agent searches flights
-2. Hotel Agent searches hotels
-3. Itinerary Agent creates travel plan
-4. Final Agent combines everything together
-5. PostgreSQL stores conversation memory
+    Plan a complete 7 days Japan trip including flights, hotels and sightseeing under 2 lakhs.
 
 
-# GitHub Actions
-* GITHUB_TOKEN is a special secret automatically generated by GitHub for every single workflow run. You do not need to manually create or store this secret in your repository's settings.
+---
+
+# Features
+
+- Multi-Agent Architecture using LangGraph
+- PostgreSQL Memory
+- Tavily Search Integration
+- AviationStack MCP Integration
+- Weather MCP Integration
+- Streamlit Web App
+- Real-Time Travel Planning
