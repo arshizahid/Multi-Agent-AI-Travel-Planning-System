@@ -88,9 +88,7 @@ def supervisor_agent(state: TravelState):
             "llm_calls": state.get("llm_calls", 0) + 1,
         }
 
-
     # supervisor logic is starting from here:
-
     prompt = f"""
 You are the supervisor of a real-world multi-agent travel planning system.
 
@@ -121,7 +119,6 @@ User request:
 {query}
 """
 
- 
     raw = _llm_text(
         "You route work to specialist agents. Return strict JSON only.",
         prompt,
@@ -132,8 +129,6 @@ User request:
     print("======================================\n")
 
     parsed = _json_from_llm(raw)
-   
-    #parsed = json.loads(raw)
     
     print("\n========== PARSED JSON ==========")
     print(json.dumps(parsed, indent=2))
@@ -167,74 +162,8 @@ User request:
     }
 
 
-
-
-
-
-# without guardrail
-
-# def supervisor_agent(state: TravelState):
-#     query = state["user_query"]
-#     prompt = f"""
-# You are the supervisor of a real-world multi-agent travel planning system.
-
-# Decide which specialist agents are needed for this user request.
-
-# Available agents:
-# - flight_agent: use when flights, airports, airlines, routes, or airfare guidance are needed
-# - hotel_agent: use when hotels, stays, neighborhoods, or accommodation are needed
-# - weather_agent: use when weather, climate, season, packing, or forecast is useful
-# - budget_agent: use when budget, affordability, cost, or price constraints are mentioned
-# - itinerary_agent: almost always needed to produce the travel plan
-
-# Return only JSON with this schema:
-# {{
-#   "selected_agents": ["flight_agent", "hotel_agent", "weather_agent", "budget_agent", "itinerary_agent"],
-#   "trip_constraints": {{
-#     "destination": "",
-#     "origin": "",
-#     "duration": "",
-#     "budget": "",
-#     "travel_style": "",
-#     "special_preferences": []
-#   }},
-#   "reasoning": ""
-# }}
-
-# User request:
-# {query}
-# """
-    
-#     raw = _llm_text(
-#         "You route work to specialist agents. Return strict JSON only.",
-#         prompt,
-#     )
-
-#     print("\n========== RAW LLM RESPONSE ==========")
-#     print(raw)
-#     print("======================================\n")
-
-#     parsed = _json_from_llm(raw)
-#     print("\n========== PARSED JSON ==========")
-#     print(json.dumps(parsed, indent=2))
-#     print("=================================\n")
-
-#     print(type(raw))
-#     print(type(parsed))
-
-#     selected = parsed["selected_agents"]       
-
-#     return {
-#         "selected_agents": selected,
-#         "trip_constraints": parsed["trip_constraints"],
-#         "supervisor_reasoning": parsed["reasoning"],
-#         "messages": [AIMessage(content="Supervisor created the agent plan.")],
-#         "llm_calls": state.get("llm_calls", 0) + 1,
-#     }
-
-
-
-def flight_agent(state: TravelState):
+# CHANGED: Added 'async'
+async def flight_agent(state: TravelState):
     query = state["user_query"]
     constraints = state["trip_constraints"]
     destination = constraints["destination"]
@@ -244,8 +173,9 @@ def flight_agent(state: TravelState):
     print("Constraints:", constraints)
     print("========================================\n")
 
-    airports = asyncio.run(list_airports(destination, limit=10))
-    airlines = asyncio.run(list_airlines("", limit=10))
+    # CHANGED: Replaced asyncio.run with await
+    airports = await list_airports(destination, limit=10)
+    airlines = await list_airlines("", limit=10)
 
     print("\n========== AIRPORT MCP DATA ==========")
     print(airports)
@@ -291,16 +221,16 @@ and booking advice.
     }
 
 
-
-
-def hotel_agent(state: TravelState):
+# CHANGED: Added 'async'
+async def hotel_agent(state: TravelState):
     query = f"Best hotels and areas to stay for: {state['user_query']}"
 
     print("\n========== HOTEL AGENT INPUT ==========")
     print(query)
     print("=======================================\n")
 
-    result = asyncio.run(tavily_search(query))
+    # CHANGED: Replaced asyncio.run with await
+    result = await tavily_search(query)
 
     print("\n========== HOTEL SEARCH RESULT ==========")
     print(result)
@@ -312,7 +242,8 @@ def hotel_agent(state: TravelState):
     }
 
 
-def weather_agent(state: TravelState):
+# CHANGED: Added 'async'
+async def weather_agent(state: TravelState):
     constraints = state["trip_constraints"]
     city = constraints["destination"]
 
@@ -320,8 +251,9 @@ def weather_agent(state: TravelState):
     print("City:", city)
     print("=========================================\n")
 
-    weather_data = asyncio.run(current_weather(city))
-    forecast_data = asyncio.run(forecast(city))
+    # CHANGED: Replaced asyncio.run with await
+    weather_data = await current_weather(city)
+    forecast_data = await forecast(city)
 
     print("\n========== CURRENT WEATHER ==========")
     print(weather_data)
@@ -349,9 +281,7 @@ Forecast:
     }
 
 
-
 def budget_agent(state: TravelState):
-
     print("\n========== BUDGET AGENT INPUT ==========")
     print("Trip Constraints:")
     print(state.get("trip_constraints"))
@@ -404,9 +334,7 @@ Return a concise budget assessment with:
     }
 
 
-
 def itinerary_agent(state: TravelState):
-
     print("\n========== ITINERARY AGENT INPUT ==========")
     print("Trip Constraints:")
     print(state.get("trip_constraints"))
@@ -496,9 +424,7 @@ def human_approval_agent(state: TravelState):
     }
 
 
-
 def final_response_agent(state: TravelState):
-
     print("\n========== FINAL AGENT INPUT ==========")
     print("Approved:", state.get("approved"))
     print("Feedback:", state.get("human_feedback"))

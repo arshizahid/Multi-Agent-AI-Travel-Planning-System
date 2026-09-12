@@ -8,43 +8,48 @@ from config import (
     TAVILY_API_KEY,
 )
 
+import sys
+APP_PYTHON = sys.executable
+AVIATION_PYTHON = sys.executable
+WEATHER_SERVER = "/app/custom_weather_mcp_server.py"
+
+
 # Create MCP Client
 client = MultiServerMCPClient(
     {
         "tavily": {
-            "transport": "streamable_http", # this is the transport type for the tavily MCP server that is in remote development. It uses streamable HTTP for communication.
+            "transport": "streamable_http",
             "url": f"https://mcp.tavily.com/mcp/?tavilyApiKey={TAVILY_API_KEY}"
         },
 
         "aviationstack": {
-            "transport": "stdio", # this is the transport type for the aviationstack MCP server that is in local development. It uses standard input/output for communication.
-            "command": r"C:\Users\zahid\Downloads\AI Travel Planning (langGraph and mcp)\aviationstack-mcp\.venv\Scripts\python.exe",
-            "args": [
-                "-m",
-                "aviationstack_mcp",
-                "mcp",
-                "run"
-            ],
-            "env": {
-                "AVIATION_STACK_API_KEY": AVIATION_STACK_API_KEY
-            }
+          "transport": "stdio",
+          "command": AVIATION_PYTHON,
+          "args": [
+              "-m",
+              "aviationstack_mcp",
+              "mcp",
+              "run"
+          ],
+          "env": {
+              **os.environ,
+              "AVIATION_STACK_API_KEY": AVIATION_STACK_API_KEY
+          }
         },
-
         "weather": {
-            "transport": "stdio",
-            "command": r"C:\Users\zahid\Downloads\AI-Travel-Planning-System (langGraph and APIs)\langgraph_env3\Scripts\python.exe",
-            "args": [
-                r"C:\Users\zahid\Downloads\AI-Travel-Planning-System (langGraph and APIs)\custom_weather_mcp_server.py"
-            ],
-            "env": {
-                "OPENWEATHER_API_KEY": OPENWEATHER_API_KEY
-            }
-        }
-
+          "transport": "stdio",
+          "command": APP_PYTHON,
+          "args": [
+              WEATHER_SERVER
+          ],
+          "env": {
+              **os.environ,
+              "OPENWEATHER_API_KEY": OPENWEATHER_API_KEY
+          }
+      }
 
 
     }
-
 )
 
 

@@ -1,3 +1,6 @@
 langgraph_env3
 api-keys
 .env
+__pycache__
+*.pyc
+.git
