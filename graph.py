@@ -1,5 +1,3 @@
-import psycopg
-from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph import END, START, StateGraph
 
 from agents import (
@@ -12,7 +10,6 @@ from agents import (
     supervisor_agent,
     weather_agent,
 )
-from config import DATABASE_URL
 from state import TravelState
 
 AGENT_ORDER = [
@@ -42,7 +39,6 @@ def route_from_supervisor(state: TravelState) -> str:
     return selected[0] if selected else "itinerary_agent"
 
 
-
 def route_after_agent(current_agent: str):
     def route(state: TravelState) -> str:
         selected = _selected_agents(state)
@@ -55,8 +51,6 @@ def route_after_agent(current_agent: str):
         return "itinerary_agent"
 
     return route
-
-
 
 
 def build_graph():
@@ -81,14 +75,5 @@ def build_graph():
     graph.add_edge("human_approval", "final_response")
     graph.add_edge("final_response", END)
 
-    if DATABASE_URL:
-        conn = psycopg.connect(DATABASE_URL)
-        checkpointer = PostgresSaver(conn)
-        checkpointer.setup()
-        return graph.compile(checkpointer=checkpointer)
-
-    return graph.compile()
-
-
-app = build_graph()
-
+    # Return the raw graph builder instead of compiling it with a sync DB
+    return graph

@@ -1,10 +1,13 @@
 import uuid
+import asyncio
 
 import streamlit as st
 from langchain_core.messages import HumanMessage
 from langgraph.types import Command
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
-from graph import app
+from config import DATABASE_URL
+from graph import build_graph
 
 
 st.set_page_config(page_title="Real-World Multi-Agent Travel Planner", layout="wide")
@@ -22,7 +25,9 @@ with st.sidebar:
         st.session_state.pop("latest_result", None)
 
     st.caption(f"Thread: {st.session_state.thread_id}")
-
+    
+    st.divider()
+    st.caption("✨ Developed by Zahid Ansari")
 
 query = st.text_area(
     "Travel request",
@@ -32,27 +37,35 @@ query = st.text_area(
 
 config = {"configurable": {"thread_id": st.session_state.thread_id}}
 
+# --- NEW: Unified Async Execution Wrapper ---
+async def execute_graph(payload):
+    """Manages the async database connection and executes the graph in a unified event loop."""
+    async with AsyncPostgresSaver.from_conn_string(DATABASE_URL) as checkpointer:
+        await checkpointer.setup()
+        builder = build_graph()
+        app = builder.compile(checkpointer=checkpointer)
+        return await app.ainvoke(payload, config=config)
+# --------------------------------------------
 
 if st.button("Create Draft Plan", type="primary"):
     if not query.strip():
         st.warning("Enter a travel request first.")
     else:
         with st.spinner("Agents are planning..."):
-            result = app.invoke(
-                {
-                    "messages": [HumanMessage(content=query)],
-                    "user_id": user_id,
-                    "user_query": query,
-                    "flight_results": "",
-                    "hotel_results": "",
-                    "weather_results": "",
-                    "budget_results": "",
-                    "itinerary": "",
-                    "final_response": "",
-                    "llm_calls": 0,
-                },
-                config=config,
-            )
+            payload = {
+                "messages": [HumanMessage(content=query)],
+                "user_id": user_id,
+                "user_query": query,
+                "flight_results": "",
+                "hotel_results": "",
+                "weather_results": "",
+                "budget_results": "",
+                "itinerary": "",
+                "final_response": "",
+                "llm_calls": 0,
+            }
+            # Execute safely inside the async wrapper
+            result = asyncio.run(execute_graph(payload))
 
         st.session_state.latest_result = result
         st.session_state.waiting_for_approval = "__interrupt__" in result
@@ -94,15 +107,15 @@ if st.session_state.get("waiting_for_approval"):
 
     if st.button("Submit Approval"):
         with st.spinner("Creating final response..."):
-            final_result = app.invoke(
-                Command(
-                    resume={
-                        "approved": approved == "Yes",
-                        "feedback": feedback,
-                    }
-                ),
-                config=config,
+            command = Command(
+                resume={
+                    "approved": approved == "Yes",
+                    "feedback": feedback,
+                }
             )
+            # Execute safely inside the async wrapper
+            final_result = asyncio.run(execute_graph(command))
+            
         st.session_state.latest_result = final_result
         st.session_state.waiting_for_approval = False
         st.rerun()

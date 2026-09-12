@@ -1,5 +1,6 @@
 # pip install mcp requests
 
+
 from mcp.server.fastmcp import FastMCP
 import requests
 import os
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 mcp = FastMCP("Weather Server")
+
 
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
@@ -37,7 +39,6 @@ def get_current_weather(city: str):
         "condition": data["weather"][0]["description"],
         "wind_speed": data["wind"]["speed"]
     }
-
 
 
 @mcp.tool()
